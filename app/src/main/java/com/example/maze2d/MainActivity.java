@@ -13,17 +13,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        start();
     }
 
     private void start() {
-        setContentView(R.layout.activity_main);
-        //View chunk = getLayoutInflater().inflate(R.layout.activity_main, );
-        Button start = findViewById(R.id.start);
+        final Button start = findViewById(R.id.start);
         start.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, GameActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
     }
