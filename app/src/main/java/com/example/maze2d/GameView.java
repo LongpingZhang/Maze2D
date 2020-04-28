@@ -11,10 +11,14 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Stack;
+
 public class GameView extends View {
     private Cell[][] cells;
-    private int rows = 5;
-    private int columns = 5;
+    private int rows = 10;
+    private int columns = 10;
     private float cellSize;
     private float hMargin;
     private float vMargin;
@@ -31,7 +35,7 @@ public class GameView extends View {
         createMaze();
     }
 
-    // Initialize
+    // Use back-tracking recursion algorithm to create a maze.
     private void createMaze() {
         // Initialize cells array..
         cells = new Cell[columns][rows];
@@ -40,6 +44,20 @@ public class GameView extends View {
                 cells[x][y] = new Cell(x, y);
             }
         }
+
+        Stack<Cell> stack = new Stack<>();
+        Cell current = cells[0][0];
+        do {
+            current.visited = true;
+            Cell next = getNeighbour(current);
+            if (next != null) {
+                clearWall(current, next);
+                stack.push(current);
+                current = next;
+            } else {
+                current = stack.pop();
+            }
+        } while (!stack.empty());
     }
 
     // Fulfill the background with yellow.
@@ -101,6 +119,64 @@ public class GameView extends View {
         }
     }
 
+    private Cell getNeighbour(Cell current) {
+        ArrayList<Cell> neighbours = new ArrayList<>();
+
+        // left neighbour
+        if (current.column > 0) {
+            if (!cells[current.column - 1][current.row].visited) {
+                neighbours.add(cells[current.column - 1][current.row]);
+            }
+        }
+        // right neighbour
+        if (current.column < columns - 1) {
+            if (!cells[current.column + 1][current.row].visited) {
+                neighbours.add(cells[current.column + 1][current.row]);
+            }
+        }
+        // top neighbour
+        if (current.row > 0) {
+            if (!cells[current.column][current.row - 1].visited) {
+                neighbours.add(cells[current.column][current.row - 1]);
+            }
+        }
+        // bottom neighbour
+        if (current.row < rows - 1) {
+            if (!cells[current.column][current.row + 1].visited) {
+                neighbours.add(cells[current.column][current.row + 1]);
+            }
+        }
+        Random random = new Random();
+        if (neighbours.size() > 0) {
+            return neighbours.get(random.nextInt(neighbours.size()));
+        }
+        return null;
+    }
+
+    private void clearWall(Cell current, Cell next) {
+        // left wall
+        if (current.column == next.column + 1 && current.row == next.row) {
+            current.leftWall = false;
+            next.rightWall = false;
+        }
+        // right wall
+        if (current.column == next.column - 1 && current.row == next.row) {
+            current.rightWall = false;
+            next.leftWall = false;
+        }
+        // top wall
+        if (current.column == next.column && current.row == next.row + 1) {
+            current.topWall = false;
+            next.bottomWall = false;
+        }
+        // bottom wall
+        if (current.column == next.column && current.row == next.row - 1) {
+            current.bottomWall = false;
+            next.topWall = false;
+        }
+
+    }
+
     private class Cell {
         // Set the boolean value for each wall of the cell.
         // True => wall presented.
@@ -109,6 +185,7 @@ public class GameView extends View {
         boolean leftWall = true;
         boolean rightWall = true;
         int column, row;
+        boolean visited = false;
 
         Cell(int column, int row) {
             this.column = column;
