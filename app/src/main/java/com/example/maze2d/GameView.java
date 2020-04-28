@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
 
+// The idea of how to create a maze using back tracking recursion algorithm is from
+// https://www.youtube.com/watch?v=kiG1BUa34lc.
 public class GameView extends View {
     private Cell[][] cells;
     private int rows = 10;
@@ -23,14 +25,24 @@ public class GameView extends View {
     private float hMargin;
     private float vMargin;
     private Paint paint;
+    private Paint playerPaint;
+    private Paint endPaint;
+    private Cell player;
+    private Cell end;
 
     public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
-        // Initialize paint instance;
+        // Initialize paint instances.
         paint = new Paint();
-        paint.setStrokeWidth(3);
+        paint.setStrokeWidth(5);
         paint.setColor(Color.BLACK);
+
+        playerPaint = new Paint();
+        playerPaint.setColor(Color.RED);
+
+        endPaint = new Paint();
+        endPaint.setColor(Color.GREEN);
 
         createMaze();
     }
@@ -44,6 +56,10 @@ public class GameView extends View {
                 cells[x][y] = new Cell(x, y);
             }
         }
+
+        // Initiate player and end for later use in onDraw method.
+        player = cells[0][0];
+        end = cells[columns - 1][rows - 1];
 
         Stack<Cell> stack = new Stack<>();
         Cell current = cells[0][0];
@@ -60,7 +76,7 @@ public class GameView extends View {
         } while (!stack.empty());
     }
 
-    // Fulfill the background with yellow.
+    // Draw the maze, player, and end.
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawColor(Color.YELLOW);
@@ -117,8 +133,24 @@ public class GameView extends View {
                 }
             }
         }
+
+        float margin = cellSize / 10;
+        // Draw the player
+        float playerLeft = player.column * cellSize + margin;
+        float playerRight = (player.column + 1) * cellSize - margin;
+        float playerTop = player.row * cellSize + margin;
+        float playerBottom = (player.row + 1) * cellSize - margin;
+        canvas.drawRect(playerLeft, playerTop, playerRight, playerBottom, playerPaint);
+
+        // Draw the end
+        float endLeft = end.column * cellSize + margin;
+        float endRight = (end.column + 1) * cellSize - margin;
+        float endTop = end.row * cellSize + margin;
+        float endBottom = (end.row + 1) * cellSize - margin;
+        canvas.drawRect(endLeft, endTop, endRight, endBottom, endPaint);
     }
 
+    // Get the neighbour cell of the current cell randomly.
     private Cell getNeighbour(Cell current) {
         ArrayList<Cell> neighbours = new ArrayList<>();
 
@@ -153,6 +185,7 @@ public class GameView extends View {
         return null;
     }
 
+    // Clear the wall between two adjacent cells.
     private void clearWall(Cell current, Cell next) {
         // left wall
         if (current.column == next.column + 1 && current.row == next.row) {
@@ -177,6 +210,7 @@ public class GameView extends View {
 
     }
 
+    // Private class for storing necessary information of a cell.
     private class Cell {
         // Set the boolean value for each wall of the cell.
         // True => wall presented.
