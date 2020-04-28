@@ -17,6 +17,8 @@ public class GameActivity extends AppCompatActivity {
         exit();
     }
 
+
+
     private void exit() {
         final Button quit = findViewById(R.id.quit);
         quit.setOnClickListener(new View.OnClickListener() {
