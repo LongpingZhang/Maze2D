@@ -287,21 +287,4 @@ public class GameView extends View {
         }
     }
 
-    private void right() {
-        final Button right = findViewById(R.id.right);
-        right.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                move("right");
-            }
-        });
-    }
-
-    private void down() {
-        final Button right = findViewById(R.id.right);
-        right.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                move("right");
-            }
-        });
-    }
 }
