@@ -36,8 +36,6 @@ public class GameView extends View {
     private float playerRight;
     private float playerTop;
     private float playerBottom;
-    private float height;
-    private float width;
 
     public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
