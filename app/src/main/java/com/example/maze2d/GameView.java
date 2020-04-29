@@ -1,5 +1,4 @@
 package com.example.maze2d;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,9 +6,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -17,6 +19,7 @@ import java.util.Stack;
 
 // The idea of how to create a maze using back tracking recursion algorithm is from
 // https://www.youtube.com/watch?v=kiG1BUa34lc.
+// We use new Android feature, canvas, to help us draw the maze.
 public class GameView extends View {
     private Cell[][] cells;
     private int rows = 10;
@@ -29,6 +32,12 @@ public class GameView extends View {
     private Paint endPaint;
     private Cell player;
     private Cell end;
+    private float playerLeft;
+    private float playerRight;
+    private float playerTop;
+    private float playerBottom;
+    private float height;
+    private float width;
 
     public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -136,10 +145,10 @@ public class GameView extends View {
 
         float margin = cellSize / 10;
         // Draw the player
-        float playerLeft = player.column * cellSize + margin;
-        float playerRight = (player.column + 1) * cellSize - margin;
-        float playerTop = player.row * cellSize + margin;
-        float playerBottom = (player.row + 1) * cellSize - margin;
+        playerLeft = player.column * cellSize + margin;
+        playerRight = (player.column + 1) * cellSize - margin;
+        playerTop = player.row * cellSize + margin;
+        playerBottom = (player.row + 1) * cellSize - margin;
         canvas.drawRect(playerLeft, playerTop, playerRight, playerBottom, playerPaint);
 
         // Draw the end
@@ -148,6 +157,59 @@ public class GameView extends View {
         float endTop = end.row * cellSize + margin;
         float endBottom = (end.row + 1) * cellSize - margin;
         canvas.drawRect(endLeft, endTop, endRight, endBottom, endPaint);
+    }
+    public boolean onTouchEvent(MotionEvent event) {
+        float currentX = (float) (player.column + 0.5) * cellSize + hMargin;
+        float currentY = (float) (player.row + 0.5) * cellSize + vMargin;
+
+        float touchX = event.getX();
+        float touchY = event.getY();
+
+        if (Math.abs(currentX - touchX) >= cellSize || Math.abs(currentY - touchY) >= cellSize) {
+            // move direction?
+            if (Math.abs(currentX - touchX) > Math.abs(currentY - touchY)) {
+                // x direction
+                if ((currentX - touchX) < 0) {
+                    // right
+                    move("right");
+                } else {
+                    // left
+                    move("left");
+                }
+            } else {
+                // y direction
+                if ((currentY - touchY) < 0) {
+                    // downward
+                    move("down");
+                } else {
+                    // upward
+                    move("up");
+                }
+            }
+        }
+
+        this.invalidate();
+        return true;
+    }
+
+    private void move(String direction) {
+        if (direction.equals("left")) {
+            if (!player.leftWall) {
+                player = cells[player.column - 1][player.row];
+            }
+        } else if (direction.equals("right")) {
+            if (!player.rightWall) {
+                player = cells[player.column + 1][player.row];
+            }
+        } else if (direction.equals("up")) {
+            if (!player.topWall) {
+                player = cells[player.column][player.row - 1];
+            }
+        } else {
+            if (!player.bottomWall) {
+                player = cells[player.column][player.row + 1];
+            }
+        }
     }
 
     // Get the neighbour cell of the current cell randomly.
@@ -227,4 +289,21 @@ public class GameView extends View {
         }
     }
 
+    private void right() {
+        final Button right = findViewById(R.id.right);
+        right.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                move("right");
+            }
+        });
+    }
+
+    private void down() {
+        final Button right = findViewById(R.id.right);
+        right.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                move("right");
+            }
+        });
+    }
 }
