@@ -160,12 +160,47 @@ public class GameView extends View {
         canvas.drawRect(endLeft, endTop, endRight, endBottom, endPaint);
     }
     public boolean onTouchEvent(MotionEvent event) {
-        playerLeft = event.getX() - width / 2;
-        playerRight = event.getX() + width / 2;
-        playerTop = event.getY() + height / 2;
-        playerBottom = event.getY() - height / 2;
-        this.invalidate();
+        float currentX = (float) (player.column + 0.5) * cellSize + hMargin;
+        float currentY = (float) (player.row + 0.5) * cellSize + vMargin;
+        float touchX = event.getX();
+        float touchY = event.getY();
+        if (Math.abs(currentX - touchX) >= cellSize || Math.abs(currentY - touchY) >= cellSize) {
+            if (Math.abs(currentX - touchX) > Math.abs(currentY - touchY)) {
+                if ((currentX - touchX) < 0) {
+                    move("right");
+                } else {
+                    move("left");
+                }
+            } else {
+                if ((currentY - touchY) < 0) {
+                    move("down");
+                } else {
+                    move("up");
+                }
+            }
+        }
         return true;
+    }
+
+    private void move (String direction) {
+        if (direction.equals("left")) {
+            if (!player.leftWall) {
+                player = cells[player.column--][player.row];
+            }
+        } else if (direction.equals("right")) {
+            if (!player.rightWall) {
+                player = cells[player.column++][player.row];
+            }
+        } else if (direction.equals("down")) {
+            if (!player.bottomWall) {
+                player = cells[player.column][player.row++];
+            }
+        } else {
+            if (!player.topWall) {
+                player = cells[player.column][player.row--];
+            }
+        }
+        this.invalidate();
     }
 
     // Get the neighbour cell of the current cell randomly.
