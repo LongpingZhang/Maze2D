@@ -186,6 +186,10 @@ public class GameView extends View {
             }
         }
 
+        if (player.column == end.column && player.row == end.row) {
+            createMaze();
+        }
+
         this.invalidate();
         return true;
     }
